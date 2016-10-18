@@ -1,61 +1,6 @@
-## Android 6.0 权限申请辅助 ----PermissionsHelper ##
+## PermissionsHelper 使用
 
 > **项目地址:[https://github.com/didikee/PermissionsHelper](https://github.com/didikee/PermissionsHelper)**
-
-> **Android 的危险权限分为9组.如下所示**
-
-#### CALENDAR ####
- 
-	READ_CALENDAR
-	WRITE_CALENDAR
-
-#### CAMERA  ####
-
-	CAMERA
-
-#### CONTACTS ####
-
-	READ_CONTACTS
-	WRITE_CONTACTS
-	GET_ACCOUNTS
-
-#### LOCATION ####
-
-	ACCESS_FINE_LOCATION
-	ACCESS_COARSE_LOCATION
-
-#### MICROPHONE ####
-
-	RECORD_AUDIO
-
-#### PHONE ####
-
-	READ_PHONE_STATE
-	CALL_PHONE
-	READ_CALL_LOG
-	WRITE_CALL_LOG
-	ADD_VOICEMAIL
-	USE_SIP
-	PROCESS_OUTGOING_CALLS
-
-#### SENSORS ####
-
-	BODY_SENSORS
-
-#### SMS ####
-
-	SEND_SMS
-	RECEIVE_SMS
-	READ_SMS
-	RECEIVE_WAP_PUSH
-	RECEIVE_MMS
-
-#### STORAGE ####
-
-	READ_EXTERNAL_STORAGE
-	WRITE_EXTERNAL_STORAGE
-
-### 1. AndroidManifest.xml ###
 
 > **9组 危险权限,按照你的项目需求申请,不要盲目,切勿贪婪.更不要偷懒复制粘贴**
 
@@ -95,144 +40,171 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <!-- Dangerous Permissions end -->
 
-### 2. 在Activity中使用 ###
+> 开始使用=.=
+> 第一步: 配置需要的权限
+```
+// app所需要的全部危险权限
+    static final String[] PERMISSIONS = new String[]{
+            DangerousPermissions.CALENDAR,
+            DangerousPermissions.CAMERA,
+            DangerousPermissions.CONTACTS,
+            DangerousPermissions.LOCATION,
+            DangerousPermissions.MICROPHONE,
+            DangerousPermissions.PHONE,
+            DangerousPermissions.STORAGE,
+            DangerousPermissions.SENSORS,
+            DangerousPermissions.SMS
+    };
+    private PermissionsHelper permissionsHelper;
+```
 
-	public class PermissionsActivity extends AppCompatActivity {
-	    // app所需要的全部危险权限
-	    static final String[] PERMISSIONS = new String[]{
-	            DangerousPermissions.CALENDAR,
-	            DangerousPermissions.CAMERA,
-	            DangerousPermissions.CONTACTS,
-	            DangerousPermissions.LOCATION,
-	            DangerousPermissions.MICROPHONE,
-	            DangerousPermissions.PHONE,
-	            DangerousPermissions.STORAGE,
-	            DangerousPermissions.SENSORS,
-	            DangerousPermissions.SMS
-	    };
-	    private PermissionsHelper permissionsHelper;
-	
-	    @Override
-	    protected void onCreate(Bundle savedInstanceState) {
-	        super.onCreate(savedInstanceState);
-	        setContentView(R.layout.activity_permissions);
-	        checkPermissions();
-	    }
-	    private void checkPermissions() {
-	        permissionsHelper = new PermissionsHelper(this,PERMISSIONS);
-	        if (permissionsHelper.checkAllPermissions(PERMISSIONS)){
-	            permissionsHelper.onDestroy();
-	            //doSomething
-	        }else {
-	            //申请权限
-	            permissionsHelper.startRequestNeedPermissions();
-	        }
-	        permissionsHelper.setonAllNeedPermissionsGrantedListener(new PermissionsHelper.onAllNeedPermissionsGrantedListener() {
-	
-	
-	            @Override
-	            public void onAllNeedPermissionsGranted() {
-	                Log.d("test","onAllNeedPermissionsGranted");
-	            }
-	
-	            @Override
-	            public void onPermissionsDenied() {
-	                Log.d("test","onPermissionsDenied");
-	            }
-	        });
-	    }
-	
-	    @Override
-	    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-	                                           @NonNull int[] grantResults) {
-	        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-	        permissionsHelper.onRequestPermissionsResult(requestCode, permissions, grantResults);
-	    }
-	}
+>  第二步: 增加需要的回调设置
 
-### 9 组危险权限 (Dangerous Permissions) ###
+```
+private void checkPermissions() {
+        permissionsHelper = new PermissionsHelper(this,PERMISSIONS);
+        if (permissionsHelper.checkAllPermissions(PERMISSIONS)){
+            permissionsHelper.onDestroy();
+            //do nomarl
+        }else {
+            //申请权限
+            permissionsHelper.startRequestNeedPermissions();
+        }
+        permissionsHelper.setonAllNeedPermissionsGrantedListener(new PermissionsHelper.onAllNeedPermissionsGrantedListener() {
 
-	public final class DangerousPermissions {
-	    /**
-	     * Google doc:
-	     * If an app requests a dangerous permission listed in its manifest,
-	     * and the app already has another dangerous permission in the same
-	     * permission group, the system immediately grants the permission
-	     * without any interaction with the user. For example, if an app had
-	     * previously requested and been granted the READ_CONTACTS permission,
-	     * and it then requests WRITE_CONTACTS, the system immediately grants that permission.
-	     */
-	
-	    /*
-	    *   permission group : PHONE
-	    * 	READ_PHONE_STATE
-		*   CALL_PHONE
-		*   READ_CALL_LOG
-		*   WRITE_CALL_LOG
-		*   ADD_VOICEMAIL
-		*   USE_SIP
-		*   PROCESS_OUTGOING_CALLS
-	    */
-	    public static final String PHONE= Manifest.permission.READ_PHONE_STATE;
-	
-	    /**
-	     *  permission group : CALENDAR
-	     *  READ_CALENDAR
-	     *  WRITE_CALENDAR
-	     */
-	    public static final String CALENDAR= Manifest.permission.READ_CALENDAR;
-	
-	    /**
-	     *  permission group : CAMERA
-	     *  CAMERA
-	     */
-	    public static final String CAMERA= Manifest.permission.CAMERA;
-	
-	    /**
-	     *  permission group : CONTACTS
-	     *  READ_CONTACTS
-	     *  WRITE_CONTACTS
-	     *  GET_ACCOUNTS
-	     */
-	    public static final String CONTACTS= Manifest.permission.READ_CONTACTS;
-	
-	    /**
-	     *  permission group : LOCATION
-	     *  ACCESS_FINE_LOCATION
-	     *  ACCESS_COARSE_LOCATION
-	     */
-	    public static final String LOCATION= Manifest.permission.ACCESS_FINE_LOCATION;
-	
-	    /**
-	     *  permission group : MICROPHONE
-	     *  RECORD_AUDIO
-	     */
-	    public static final String MICROPHONE= Manifest.permission.RECORD_AUDIO;
-	
-	    /**
-	     *  permission group : SENSORS
-	     *  BODY_SENSORS
-	     */
-	    public static final String SENSORS= Manifest.permission.BODY_SENSORS;
-	
-	    /**
-	     *  permission group : SMS
-	     *  SEND_SMS
-	     *  RECEIVE_SMS
-	     *  READ_SMS
-	     *  RECEIVE_WAP_PUSH
-	     *  RECEIVE_MMS
-	     */
-	    public static final String SMS= Manifest.permission.SEND_SMS;
-	
-	    /**
-	     *  permission group : STORAGE
-	     *  READ_EXTERNAL_STORAGE
-	     *  WRITE_EXTERNAL_STORAGE
-	     */
-	    public static final String STORAGE= Manifest.permission.WRITE_EXTERNAL_STORAGE;
-	
-	}
+
+            @Override
+            public void onAllNeedPermissionsGranted() {
+            //做原先的业务代码
+                Log.d("test","onAllNeedPermissionsGranted");
+            }
+
+            @Override
+            public void onPermissionsDenied() {
+            //拒绝了,如何处理?(视情况而定)
+                Log.d("test","onPermissionsDenied");
+            }
+        });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        permissionsHelper.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        permissionsHelper.onActivityResult(requestCode, resultCode, data);
+    }
+```
+
+> NOTICE: 如果出现`You need to use a Theme.AppCompat theme (or descendant) with this activity.`将Activity的主题应用为如下主题.
+
+```
+<style name="PermissionTheme" parent="@style/Theme.AppCompat.Light">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:fitsSystemWindows">true</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:windowAnimationStyle">@style/AppAnimation</item>
+        <item name="android:textCursorDrawable">@null</item>
+    </style>
+```
+
+实际配置类似如下:
+```
+<activity
+       android:name="com.fanwe.activity.WelcomeActivity"
+       android:theme="@style/PermissionTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+ </activity>
+```
+
+> 完整的实例代码如下:
+
+```
+public class WelcomeActivity extends BaseActivity {
+    /**
+     * 迎导页显示的时间
+     */
+    private static final long ADVS_DISPLAY_TIME = 3 * 1000;
+    private SDTimer mTimer = new SDTimer();
+
+    // app所需要的全部危险权限
+    static final String[] PERMISSIONS = new String[]{
+            DangerousPermissions.CAMERA,
+            DangerousPermissions.CONTACTS,
+            DangerousPermissions.PHONE,
+            DangerousPermissions.STORAGE,
+    };
+    private PermissionsHelper permissionsHelper;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        setmTitleType(TitleType.TITLE_NONE);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.act_welcome);
+        checkPermissions();
+    }
+
+    private void init() {
+        //....业务代码
+        initUserInfo();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+		permissionsHelper.onDestroy();
+    }
+
+    private void checkPermissions() {
+        permissionsHelper = new PermissionsHelper(this,PERMISSIONS);
+        if (permissionsHelper.checkAllPermissions(PERMISSIONS)){
+            permissionsHelper.onDestroy();
+            //do nomarl
+            init();
+        }else {
+            //申请权限
+            permissionsHelper.startRequestNeedPermissions();
+        }
+        permissionsHelper.setonAllNeedPermissionsGrantedListener(new PermissionsHelper.onAllNeedPermissionsGrantedListener() {
+
+
+            @Override
+            public void onAllNeedPermissionsGranted() {
+                init();
+                Log.d("test","onAllNeedPermissionsGranted");
+            }
+
+            @Override
+            public void onPermissionsDenied() {
+                WelcomeActivity.this.finish();
+                Log.d("test","onPermissionsDenied");
+            }
+        });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        permissionsHelper.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        permissionsHelper.onActivityResult(requestCode, resultCode, data);
+    }
+}
+
+```
 
 ### 运行时 申请权限 图示 ###
 ![device-2016-08-06-144845](pic/device-2016-08-06-144845.png)
